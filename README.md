@@ -74,7 +74,7 @@ fn main() {
     let b = Mutex::new(3);
     let a_lock = a.lock();
     let b_lock = b.lock();
-    println!("{:?}", *a_lock + *b_lock);
+    println!("{:?}", a_lock + b_lock);
     let a_lock_2 = a.lock();
     let b_lock_2 = b.lock();
     println!("{:?}", a_lock_2 + b_lock_2);
