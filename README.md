@@ -23,7 +23,7 @@ fn main() {
 ```
 That code will log `5` once, when it should log twice. As you can see here, it is deadlocking.
 
-However, we can prevent this by replacing our manual calls of `.lock` with `.with_lock`. So code that wouldn't error would look something like:
+However, we can prevent this by replacing our manual calls of `.lock` with `.with_lock`. Code that wouldn't error would look something like:
 
 ```rs
 use std::sync::Mutex;
