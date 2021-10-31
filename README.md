@@ -1,6 +1,8 @@
 # with_lock
 Prevent deadlocks
 
+[Docs](https://docs.rs/with_lock)
+
 ## Example
 
 Say you have this code:
