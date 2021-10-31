@@ -1,5 +1,5 @@
 # with_lock
-Prevent deadlocks
+Deadlock freedom
 
 [Docs](https://docs.rs/with_lock)
 
@@ -43,9 +43,9 @@ fn main() {
 
 That code would log `5` twice. This is an example of how it can prevent deadlocks.
 
-## No code changes
+## Minimal code changes
 
-For the people that want little to no code changes, `with_lock` exposes a custom Mutex type.
+For the people that want little to no code changes, `with_lock` exposes a custom MutexCell type.
 
 Code that would produce deadlocks would look like this:
 
@@ -64,19 +64,19 @@ fn main() {
 }
 ```
 
-And using the custom Mutex type that wouldn't deadlock would look like:
+And using the custom MutexCell type that wouldn't deadlock would look like:
 
 ```rust
-use with_lock::Mutex;
+use with_lock::MutexCell;
 
 fn main() {
-    let a = Mutex::new(2);
-    let b = Mutex::new(3);
-    let a_locked = a.lock();
-    let b_locked = b.lock();
+    let a = MutexCell::new(2);
+    let b = MutexCell::new(3);
+    let a_locked = a.get();
+    let b_locked = b.get();
     println!("{:?}", a_locked + b_locked);
-    let a_lock_2 = a.lock();
-    let b_lock_2 = b.lock();
+    let a_lock_2 = a.get();
+    let b_lock_2 = b.get();
     println!("{:?}", a_lock_2 + b_lock_2);
 }
 ```
