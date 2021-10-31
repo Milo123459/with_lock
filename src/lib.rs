@@ -2,7 +2,7 @@
 //! * You need to use it in some async code, and call the `lock` method on the Mutex.
 //! * However, this is prone to deadlocks.
 //! * This crate provides a safe wrapper around the Mutex that will never deadlock.
-//! * It never deadlocks because it has its own function, [`with_lock`], that access' the Mutex, locks it, performs
+//! * It never deadlocks because it has its own function, `with_lock`, that access' the Mutex, locks it, performs
 //! * the closure, and then drops the lock.
 //! * Enjoy deadlock free code!
 
@@ -80,11 +80,15 @@ impl<T: Copy> Mutex<T> {
 
 	/// The lock function. It does what it says.
 	/// ## What is going on
-	/// This function
+	/// This function calls with_lock on the internal data field.
 	pub fn lock(&self) -> T {
 		self.data.with_lock(|s| *s)
 	}
 }
+
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+mod readme {}
 
 #[cfg(test)]
 mod tests {
