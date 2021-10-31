@@ -28,10 +28,17 @@
             "execute": [
                 "cargo lint"
             ]
+        },
+        {
+            "name": "test",
+            "execute": [
+                "cargo test"
+            ]
         }
     ],
     "hooks": [
         "fmt",
-        "lint"
+        "lint",
+        "test"
     ]
 }

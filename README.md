@@ -42,3 +42,41 @@ fn main() {
 ```
 
 That code would log `5` twice. This is an example of how it can prevent deadlocks.
+
+## No code changes
+
+For the people that want little to no code changes, `with_lock` exposes a custom Mutex type.
+
+Code that would produce deadlocks would look like this:
+
+```rs
+use std::sync::Mutex;
+
+fn main() {
+    let a = Mutex::new(2);
+    let b = Mutex::new(3);
+    let a_lock = a.lock().unwrap();
+    let b_lock = b.lock().unwrap();
+    println!("{:?}", *a_lock + *b_lock);
+    let a_lock_2 = a.lock().unwrap();
+    let b_lock_2 = b.lock().unwrap();
+    println!("{:?}", *a_lock_2 + *b_lock_2);
+}
+```
+
+And using the custom Mutex type that wouldn't deadlock would look like:
+
+```rs
+use with_lock::Mutex;
+
+fn main() {
+    let a = Mutex::new(2);
+    let b = Mutex::new(3);
+    let a_lock = a.lock();
+    let b_lock = b.lock();
+    println!("{:?}", *a_lock + *b_lock);
+    let a_lock_2 = a.lock();
+    let b_lock_2 = b.lock();
+    println!("{:?}", a_lock_2 + b_lock_2);
+}
+```

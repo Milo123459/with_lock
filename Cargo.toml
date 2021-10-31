@@ -1,6 +1,6 @@
 [package]
 name = "with_lock"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Prevent deadlocks"
 documentation = "https://docs.rs/with_lock"
