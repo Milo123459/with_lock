@@ -6,6 +6,7 @@
 //! the closure, and then drops the lock.
 //! Enjoy deadlock free code!
 
+use std::mem;
 use std::sync::Mutex;
 
 pub struct WithLock<T> {
@@ -98,24 +99,15 @@ impl<T> MutexCell<T> {
 	/// The replace function. It replaces the value inside the mutex and returns the previous value.
 	/// ## What is going on
 	/// Gets the value using the [`get`] method, then sets the value using the [`set`] method.
-	pub fn replace(&self, new: T) -> T
-	where
-		T: Copy,
-	{
-		let old = self.get();
-		self.set(new);
-		old
+	pub fn replace(&self, new: T) -> T {
+		self.data.with_lock(|old| mem::replace(old, new))
 	}
 	/// The swap function. It swaps the value of one MutexCell with another.
 	/// ## What is going on
 	/// We get the current value using [`get`], then we call [`set`] on this cell and assign it to what [`get`] on the other cell returned. We then use [`set`] on the other cell to assign the value that [`get`] on this cell returned.
-	pub fn swap(&self, other: &MutexCell<T>)
-	where
-		T: Copy,
-	{
-		let old = self.get();
-		self.set(other.get());
-		other.set(old);
+	pub fn swap(&self, new: &MutexCell<T>) {
+		self.data
+			.with_lock(|a| new.data.with_lock(|b| mem::swap(a, b)))
 	}
 }
 
