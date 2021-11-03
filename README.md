@@ -15,13 +15,13 @@ fn main() {
     let b = Mutex::new(3);
     let a_lock = a.lock().unwrap();
     let b_lock = b.lock().unwrap();
-    println!("{:?}", *a_lock + *b_lock);
+    assert_eq!(*a_lock + *b_lock, 5);
     let a_lock_2 = a.lock().unwrap();
     let b_lock_2 = b.lock().unwrap();
-    println!("{:?}", *a_lock_2 + *b_lock_2);
+    assert_eq!(*a_lock_2 + *b_lock_2, 5);
 }
 ```
-That code will log `5` once, when it should log twice. As you can see here, it is deadlocking.
+That code will run the first `asser_eq!` fine, but the second wouldn't assert due to a deadlock.
 
 However, we can prevent this by replacing our manual calls of `.lock` with `.with_lock`. Code that wouldn't error would look something like:
 
@@ -34,14 +34,14 @@ fn main() {
     let b = WithLock::<i64>::new(Mutex::new(3));
     let a_lock = a.with_lock(|s| *s);
     let b_lock = b.with_lock(|s| *s);
-    println!("{:?}", a_lock + b_lock);
+    assert_eq!(a_lock + b_lock, 5);
     let a_lock_2 = a.with_lock(|s| *s);
     let b_lock_2 = b.with_lock(|s| *s);
-    println!("{:?}", a_lock_2 + b_lock_2);
+    assert_eq!(a_lock_2 + b_lock_2, 5);
 }
 ```
 
-That code would log `5` twice. This is an example of how it can prevent deadlocks.
+This test would pass, and both assertions would be fulfilled. This is an example of how a dead lock was prevented.
 
 ## Minimal code changes
 
@@ -57,10 +57,10 @@ fn main() {
     let b = Mutex::new(3);
     let a_lock = a.lock().unwrap();
     let b_lock = b.lock().unwrap();
-    println!("{:?}", *a_lock + *b_lock);
+    assert_eq!(*a_lock + *b_lock, 5);
     let a_lock_2 = a.lock().unwrap();
     let b_lock_2 = b.lock().unwrap();
-    println!("{:?}", *a_lock_2 + *b_lock_2);
+    assert_eq!(*a_lock_2 + *b_lock_2, 5);
 }
 ```
 
@@ -74,9 +74,9 @@ fn main() {
     let b = MutexCell::new(3);
     let a_locked = a.get();
     let b_locked = b.get();
-    println!("{:?}", a_locked + b_locked);
+    assert_eq!(a_locked + b_locked, 5);
     let a_lock_2 = a.get();
     let b_lock_2 = b.get();
-    println!("{:?}", a_lock_2 + b_lock_2);
+    assert_eq!(a_lock_2 + b_lock_2, 5);
 }
 ```
