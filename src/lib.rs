@@ -98,13 +98,13 @@ impl<T> MutexCell<T> {
 
 	/// The replace function. It replaces the value inside the mutex and returns the previous value.
 	/// ## What is going on
-	/// Gets the value using the [`get`] method, then sets the value using the [`set`] method.
+	/// Locks this cell, and then calls `mem::replace` on the locked value.
 	pub fn replace(&self, new: T) -> T {
 		self.data.with_lock(|old| mem::replace(old, new))
 	}
 	/// The swap function. It swaps the value of one MutexCell with another.
 	/// ## What is going on
-	/// We get the current value using [`get`], then we call [`set`] on this cell and assign it to what [`get`] on the other cell returned. We then use [`set`] on the other cell to assign the value that [`get`] on this cell returned.
+	/// Locks this cell, then locks `new`. Then, we swap the data using `mem::swap`.
 	pub fn swap(&self, new: &MutexCell<T>) {
 		self.data
 			.with_lock(|a| new.data.with_lock(|b| mem::swap(a, b)))

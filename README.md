@@ -80,3 +80,6 @@ fn main() {
     assert_eq!(a_lock_2 + b_lock_2, 5);
 }
 ```
+
+For more examples, see the [examples directory](https://github.com/Milo123459/with_lock/tree/master/examples).
+They can be run by cloning this repository and running `cargo run --example <example_name>`.
