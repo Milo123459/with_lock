@@ -123,6 +123,25 @@ impl<T> MutexCell<T> {
 		self.data
 			.with_lock(|a| new.data.with_lock(|b| mem::swap(a, b)))
 	}
+
+	/// The take function. It takes the value from the Mutex, returns it and sets the value to `Default::default()`
+	/// ## What is going on
+	/// Calls the `replace` function, and then sets it to `Default::default()`.
+
+	pub fn take(&self) -> T
+	where
+		T: Default,
+	{
+		self.replace(Default::default())
+	}
+
+	/// The into_inner function. It takes the Mutex and calls `into_inner` on it.
+	/// ## What is going on
+	/// It takes the Mutex and calls `into_inner` on it.
+
+	pub fn into_inner(self) -> T {
+		self.data.data.into_inner().unwrap()
+	}
 }
 
 #[cfg(doctest)]
@@ -184,5 +203,22 @@ mod tests {
 		let c2 = c1.get_mut();
 		*c2 += 1;
 		assert_eq!(c1.get(), 6);
+	}
+
+	#[test]
+	fn test_mutex_cell_take() {
+		let c = MutexCell::new(5);
+		let five = c.take();
+
+		assert_eq!(five, 5);
+		assert_eq!(c.into_inner(), 0);
+	}
+
+	#[test]
+	fn test_mutex_cell_into_inner() {
+		let c = MutexCell::new(5);
+		let five = c.into_inner();
+
+		assert_eq!(five, 5);
 	}
 }
