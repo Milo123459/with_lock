@@ -11,7 +11,7 @@ use std::ptr;
 use std::sync::Mutex;
 
 pub struct WithLock<T> {
-	pub data: Mutex<T>,
+	pub(crate) data: Mutex<T>,
 }
 
 impl<T> WithLock<T> {
@@ -90,6 +90,16 @@ impl<T> MutexCell<T> {
 		self.data.with_lock(|s| *s)
 	}
 
+	/// The get_mut function. It gets the value inside the mutex and returns it as mutable.
+	/// ## What is going on
+	/// Locks the mutex and retrieves the value, then unlocks the mutex.
+	pub fn get_mut(&mut self) -> &mut T
+	where
+		T: Copy,
+	{
+		self.data.data.get_mut().unwrap()
+	}
+
 	/// The set function. It sets the value inside the mutex.
 	/// ## What is going on
 	/// Locks the mutex and updates the value, then unlocks the mutex.
@@ -165,5 +175,14 @@ mod tests {
 		assert_eq!(c1.get(), 5);
 		c1.swap(&c1);
 		assert_eq!(c1.get(), 5);
+	}
+
+	#[test]
+	fn test_mutex_cell_get_mut() {
+		let mut c1 = MutexCell::new(5);
+		assert_eq!(c1.get(), 5);
+		let c2 = c1.get_mut();
+		*c2 += 1;
+		assert_eq!(c1.get(), 6);
 	}
 }
