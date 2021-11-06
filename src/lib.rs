@@ -7,6 +7,7 @@
 //! Enjoy deadlock free code!
 
 use std::mem;
+use std::ptr;
 use std::sync::Mutex;
 
 pub struct WithLock<T> {
@@ -106,6 +107,9 @@ impl<T> MutexCell<T> {
 	/// ## What is going on
 	/// Locks this cell, then locks `new`. Then, we swap the data using `mem::swap`.
 	pub fn swap(&self, new: &MutexCell<T>) {
+		if ptr::eq(self, new) {
+			return;
+		}
 		self.data
 			.with_lock(|a| new.data.with_lock(|b| mem::swap(a, b)))
 	}
@@ -153,5 +157,13 @@ mod tests {
 		c1.swap(&c2);
 		assert_eq!(10, c1.get());
 		assert_eq!(5, c2.get());
+	}
+
+	#[test]
+	fn test_mutex_cell_swap_doesnt_deadlock() {
+		let c1 = MutexCell::new(5);
+		assert_eq!(c1.get(), 5);
+		c1.swap(&c1);
+		assert_eq!(c1.get(), 5);
 	}
 }
