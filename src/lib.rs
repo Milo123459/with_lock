@@ -33,7 +33,7 @@ impl<T> WithLock<T> {
 	/// assert_eq!(a_lock + b_lock, 5);
 	/// let a_lock_2 = a.with_lock(|s| *s);
 	/// let b_lock_2 = b.with_lock(|s| *s);
-	/// assert_eq!(a_lock_2 + b_lock_2,5 );
+	/// assert_eq!(a_lock_2 + b_lock_2, 5);
 	///
 	/// ```
 	pub fn with_lock<F, U>(&self, func: F) -> U
