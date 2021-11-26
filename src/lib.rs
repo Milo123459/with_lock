@@ -15,7 +15,7 @@ pub struct WithLock<T> {
 }
 
 impl<T> WithLock<T> {
-	/// This function gives you access to what Mutex.lock().unwrap() would return.
+	/// This function gives you access to what `Mutex.lock().unwrap()` would return.
 	/// It will lock the Mutex, perform the closure, and then unlocks the Mutex.
 	/// This function is safe to use in async code, but can also be used in sync code.
 	/// ## Caveats
@@ -36,12 +36,12 @@ impl<T> WithLock<T> {
 	/// assert_eq!(a_lock_2 + b_lock_2, 5);
 	///
 	/// ```
-	pub fn with_lock<F, U>(&self, func: F) -> U
+	pub fn with_lock<F, U>(&self, function: F) -> U
 	where
 		F: FnOnce(&mut T) -> U,
 	{
 		let lock = self.data.lock();
-		func(&mut *lock.unwrap())
+		function(&mut *lock.unwrap())
 	}
 
 	/// Construct the WithLock struct with a Mutex.
