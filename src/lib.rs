@@ -1,10 +1,22 @@
-//! Sometimes, you are using a sync lock like the standard library's Mutex.
-//! You need to use it in some async code, and call the `lock` method on the Mutex.
-//! However, this is prone to deadlocks.
-//! This crate provides a  wrapper around the Mutex that will never deadlock. (hence the description, Deadlock freedom)
-//! It never deadlocks because it has its own function, `with_lock`, that access' the Mutex, locks it, performs
-//! the closure, and then drops the lock.
-//! Enjoy deadlock free code!
+//! A `Mutex` is prone to deadlocks when being used in sync and async code.
+//! It can lock easily, having a task do something to the value, ie, locking it, whilst having another task do the same thing.
+//! This is the most common cause of something called a deadlock.
+//!
+//! There are many takes on preventing deadlocks, but this is the simplest and easiest to migrate to, due to it having a very similar API.
+//!
+//! For instance, converting something like `.lock().unwrap()...` to use `with_lock`'s API would look something like `.with_lock(|s| s...)`.
+//! This is an example of how easy to migrate something to use `with_lock` is.
+//!
+//! # Caveats
+//! This code would deadlock:
+//! `s.with_Lock(|test| s.with_lock(|test2| test2))`
+//!
+//! This is because the internal code just locks the Mutex and provides it as an argument then dropping it once the function has finished executing. This is locking whilst the function is still executing, hence the deadlock.
+//!
+//! # Features
+//! - This crate uses no unsafe code directly.
+//! - Provides a Cell like struct powered by a Mutex: [`MutexCell`](struct.MutexCell.html)
+//! - No dependencies
 
 use std::mem;
 use std::ptr;
