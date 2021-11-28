@@ -1,6 +1,6 @@
 [package]
 name = "with_lock"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 description = "Deadlock freedom"
 documentation = "https://docs.rs/with_lock"
