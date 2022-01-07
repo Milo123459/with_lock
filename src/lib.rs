@@ -40,7 +40,7 @@ impl<T> WithLock<T> {
 	///
 	/// let a = WithLock::<i64>::new(Mutex::new(2));
 	/// let b = WithLock::<i64>::new(Mutex::new(3));
-	/// let action_and_get = |s: &mut i32| *s;
+	/// let action_and_get = |s: &mut i64| *s;
 	/// let a_lock = a.with_lock(action_and_get);
 	/// let b_lock = b.with_lock(action_and_get);
 
@@ -167,8 +167,8 @@ mod tests {
 	use crate::*;
 
 	struct SharedData {
-		pub a: i32,
-		pub b: i32,
+		pub a: i64,
+		pub b: i64,
 	}
 
 	#[test]
@@ -176,7 +176,7 @@ mod tests {
 		let a = WithLock::<i64>::new(Mutex::new(2));
 		let b = WithLock::<i64>::new(Mutex::new(3));
 
-		let action_and_get = |s: &mut i32| *s;
+		let action_and_get = |s: &mut i64| *s;
 		let a_lock = a.with_lock(action_and_get);
 		let b_lock = b.with_lock(action_and_get);
 		assert_eq!(a_lock + b_lock, 5);
