@@ -40,8 +40,10 @@ impl<T> WithLock<T> {
 	///
 	/// let a = WithLock::<i64>::new(Mutex::new(2));
 	/// let b = WithLock::<i64>::new(Mutex::new(3));
-	/// let a_lock = a.with_lock(|s| *s);
-	/// let b_lock = b.with_lock(|s| *s);
+	/// let action_and_get = |s: &mut i32| *s;
+	/// let a_lock = a.with_lock(action_and_get);
+	/// let b_lock = b.with_lock(action_and_get);
+
 	/// assert_eq!(a_lock + b_lock, 5);
 	/// let a_lock_2 = a.with_lock(|s| *s);
 	/// let b_lock_2 = b.with_lock(|s| *s);
@@ -163,6 +165,43 @@ mod readme {}
 #[cfg(test)]
 mod tests {
 	use crate::*;
+
+	struct SharedData {
+		pub a: i32,
+		pub b: i32,
+	}
+
+	#[test]
+	fn test_with_lock() {
+		let a = WithLock::<i64>::new(Mutex::new(2));
+		let b = WithLock::<i64>::new(Mutex::new(3));
+
+		let action_and_get = |s: &mut i32| *s;
+		let a_lock = a.with_lock(action_and_get);
+		let b_lock = b.with_lock(action_and_get);
+		assert_eq!(a_lock + b_lock, 5);
+
+		// repeat action with embedded lambda expression
+		let a_lock_2 = a.with_lock(|s| *s);
+		let b_lock_2 = b.with_lock(|s| *s);
+		assert_eq!(a_lock_2 + b_lock_2, 5);
+	}
+
+	#[test]
+	fn test_with_lock_over_struct() {
+		let a = WithLock::<SharedData>::new(Mutex::new(SharedData { a: 2, b: 2 }));
+		let b = WithLock::<SharedData>::new(Mutex::new(SharedData { a: 3, b: 3 }));
+
+		let action_and_get = |s: &mut SharedData| (*s).a;
+		let a_lock = a.with_lock(action_and_get);
+		let b_lock = b.with_lock(action_and_get);
+		assert_eq!(a_lock + b_lock, 5);
+
+		// repeat action with embedded lambda expression and member b (avoid dead code warning)
+		let a_lock_2 = a.with_lock(|s| (*s).b);
+		let b_lock_2 = b.with_lock(|s| (*s).b);
+		assert_eq!(a_lock_2 + b_lock_2, 5);
+	}
 
 	#[test]
 	fn test_mutex_cell_no_deadlocks() {
