@@ -1,6 +1,8 @@
 # with_lock
 Deadlock freedom
 
+[Using with_lock? Share it in the discussion!](https://github.com/Milo123459/with_lock/discussions/4)
+
 [Docs](https://docs.rs/with_lock)
 
 ## Example
