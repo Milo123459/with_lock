@@ -39,17 +39,16 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --workspace --locked
-          
+          args: --workspace
+
       - name: Build | Lint
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --workspace --locked --all-targets --all-features
+          args: --workspace --all-targets --all-features
 
       - name: Build | Test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --workspace --locked 
-        
+          args: --workspace
