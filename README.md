@@ -32,8 +32,8 @@ use std::sync::Mutex;
 use with_lock::WithLock;
 
 fn main() {
-    let a = WithLock::<i64>::new(Mutex::new(2));
-    let b = WithLock::<i64>::new(Mutex::new(3));
+    let a = WithLock::<i64>::new(2);
+    let b = WithLock::<i64>::new(3);
     let a_lock = a.with_lock(|s| *s);
     let b_lock = b.with_lock(|s| *s);
     assert_eq!(a_lock + b_lock, 5);
@@ -45,28 +45,9 @@ fn main() {
 
 This test would pass, and both assertions would be fulfilled. This is an example of how a dead lock was prevented.
 
-## Minimal code changes
+## Cell like API
 
-For the people that want little to no code changes, `with_lock` exposes a custom MutexCell type.
-
-Code that would produce deadlocks would look like this:
-
-```rust,no_run
-use std::sync::Mutex;
-
-fn main() {
-    let a = Mutex::new(2);
-    let b = Mutex::new(3);
-    let a_lock = a.lock().unwrap();
-    let b_lock = b.lock().unwrap();
-    assert_eq!(*a_lock + *b_lock, 5);
-    let a_lock_2 = a.lock().unwrap();
-    let b_lock_2 = b.lock().unwrap();
-    assert_eq!(*a_lock_2 + *b_lock_2, 5);
-}
-```
-
-And using the custom MutexCell type that wouldn't deadlock would look like:
+`with_lock` provides a custom `Cell` like API powered by a Mutex.
 
 ```rust
 use with_lock::MutexCell;

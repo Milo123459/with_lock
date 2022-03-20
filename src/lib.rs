@@ -38,8 +38,8 @@ impl<T> WithLock<T> {
 	/// use std::sync::Mutex;
 	/// use with_lock::WithLock;
 	///
-	/// let a = WithLock::<i64>::new(Mutex::new(2));
-	/// let b = WithLock::<i64>::new(Mutex::new(3));
+	/// let a = WithLock::<i64>::new(2);
+	/// let b = WithLock::<i64>::new(3);
 	/// let action_and_get = |s: &mut i64| *s;
 	/// let a_lock = a.with_lock(action_and_get);
 	/// let b_lock = b.with_lock(action_and_get);
@@ -62,10 +62,12 @@ impl<T> WithLock<T> {
 	/// ## Examples
 	/// ```rust
 	/// use with_lock::WithLock;
-	/// WithLock::<i64>::new(std::sync::Mutex::new(123));
+	/// WithLock::<i64>::new(123);
 	/// ```
-	pub fn new<F>(data: Mutex<F>) -> WithLock<F> {
-		WithLock { data }
+	pub fn new<F>(data: F) -> WithLock<F> {
+		WithLock {
+			data: Mutex::new(data),
+		}
 	}
 }
 
@@ -90,7 +92,7 @@ impl<T> MutexCell<T> {
 	/// ```
 	pub fn new(data: T) -> MutexCell<T> {
 		MutexCell {
-			data: WithLock::<T>::new(Mutex::new(data)),
+			data: WithLock::<T>::new(data),
 		}
 	}
 
@@ -173,8 +175,8 @@ mod tests {
 
 	#[test]
 	fn test_with_lock() {
-		let a = WithLock::<i64>::new(Mutex::new(2));
-		let b = WithLock::<i64>::new(Mutex::new(3));
+		let a = WithLock::<i64>::new(2);
+		let b = WithLock::<i64>::new(3);
 
 		let action_and_get = |s: &mut i64| *s;
 		let a_lock = a.with_lock(action_and_get);
@@ -189,8 +191,8 @@ mod tests {
 
 	#[test]
 	fn test_with_lock_over_struct() {
-		let a = WithLock::<SharedData>::new(Mutex::new(SharedData { a: 2, b: 2 }));
-		let b = WithLock::<SharedData>::new(Mutex::new(SharedData { a: 3, b: 3 }));
+		let a = WithLock::<SharedData>::new(SharedData { a: 2, b: 2 });
+		let b = WithLock::<SharedData>::new(SharedData { a: 3, b: 3 });
 
 		let action_and_get = |s: &mut SharedData| (*s).a;
 		let a_lock = a.with_lock(action_and_get);
