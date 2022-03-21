@@ -25,12 +25,11 @@ fn main() {
     assert_eq!(*a_lock_2 + *b_lock_2, 5);
 }
 ```
-That code will run the first `asser_eq!` fine, but the second wouldn't assert due to a deadlock.
+That code will run the first `assert_eq!` fine, but the second wouldn't assert due to a deadlock.
 
 However, we can prevent this by replacing our manual calls of `.lock` with `.with_lock`. Code that wouldn't error would look something like:
 
 ```rust
-use std::sync::Mutex;
 use with_lock::WithLock;
 
 fn main() {
