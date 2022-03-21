@@ -18,9 +18,9 @@
 //! - Provides a Cell like struct powered by a Mutex: [`MutexCell`](struct.MutexCell.html)
 //! - No dependencies
 
+use parking_lot::{const_mutex, Mutex};
 use std::mem;
 use std::ptr;
-use std::sync::Mutex;
 
 pub struct WithLock<T> {
 	pub(crate) data: Mutex<T>,
@@ -54,8 +54,8 @@ impl<T> WithLock<T> {
 	where
 		F: FnOnce(&mut T) -> U,
 	{
-		let lock = self.data.lock();
-		function(&mut *lock.unwrap())
+		let mut lock = self.data.lock();
+		function(&mut *lock)
 	}
 
 	/// Construct the WithLock struct with a Mutex.
@@ -66,7 +66,7 @@ impl<T> WithLock<T> {
 	/// ```
 	pub fn new<F>(data: F) -> WithLock<F> {
 		WithLock {
-			data: Mutex::new(data),
+			data: const_mutex(data),
 		}
 	}
 }
@@ -113,7 +113,7 @@ impl<T> MutexCell<T> {
 	where
 		T: Copy,
 	{
-		self.data.data.get_mut().unwrap()
+		self.data.data.get_mut()
 	}
 
 	/// The set function. It sets the value inside the mutex.
@@ -156,7 +156,7 @@ impl<T> MutexCell<T> {
 	/// It takes the Mutex and calls `into_inner` on it.
 
 	pub fn into_inner(self) -> T {
-		self.data.data.into_inner().unwrap()
+		self.data.data.into_inner()
 	}
 }
 
