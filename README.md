@@ -5,7 +5,7 @@ Deadlock freedom
 
 [Docs](https://docs.rs/with_lock)
 
-This crate provides a super simple way of managing Mutex's, and freeing your code from deadlocks. It is powered by [parking_lot](https://crates.io/crates/parking_lot)
+This crate provides a simple way of managing Mutex's, and freeing your code from deadlocks. It is powered by [parking_lot](https://crates.io/crates/parking_lot).
 
 ## Example
 
