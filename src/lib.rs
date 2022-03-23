@@ -80,9 +80,8 @@ pub struct MutexCell<T> {
 impl<T> MutexCell<T> {
 	/// Construct a new Mutex.
 	/// ## What is going on
-	/// This function creates a new [`Mutex`] where data (a field only visible in this crate) is a [`WithLock`]
-	/// It then constructs the standard library's Mutex, which is then wrapped around by the [`WithLock`].
-	/// The only change from using the standard library's Mutex is that all cases of `.lock().unwrap()` are handled for you,
+	/// This function creates a new [`Mutex`] where data (a field only visible in this crate) is a [`WithLock`].
+	/// It then constructs a Mutex, powered by parking_lot, which is then wrapped around by [`WithLock`].
 	/// so you don't need to call .unwrap() after calling .lock().
 	/// ## Example
 	/// ```rust
