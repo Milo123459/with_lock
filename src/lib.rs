@@ -108,7 +108,7 @@ impl<T> MutexCell<T> {
 	where
 		T: Default,
 	{
-		self.replace(Default::default())
+		self.replace(T::default())
 	}
 
 	/// This function takes the raw mutex and calls [`into_inner`](`std::sync::Mutex::into_inner`).
