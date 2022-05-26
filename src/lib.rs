@@ -1,19 +1,17 @@
 //! A [`Mutex`](`std::sync::Mutex`) is prone to deadlocks when being used in sync and async code.
-//! There are various causes of deadlocks, primarily due to the use of not dropping the lock.
-//! This crate provides a function that locks for you, and automatically drops the lock. This eliminates the risk of deadlocks.
+//! There are various causes of deadlocks, primarily due to not dropping the lock correctly.
+//! This crate provides a function that locks for you, and automatically drops the lock. This significantly reduces the risk of deadlocks.
 //!
 //! With this crate, you would convert `.lock()` to simply be `.with_lock(|s| *s)`.
 //!
 //! # Features
-//! - Simple API. Powered by parking_lot's [`Mutex`](`parking_lot::Mutex`).
+//! - Simple API.
 //! - Provides a Cell like struct powered by a Mutex: [`MutexCell`](struct.MutexCell.html).
 //!
 //! # Caveats
-//! These are the known causes of deadlocks. If you find a new one, please report it [here](https://github.com/Milo123459/with_lock/issues).
+//! If you manage to find a deadlock, please report it [here](https://github.com/Milo123459/with_lock/issues).
 //!
-//! `s.with_Lock(|test| s.with_lock(|test2| test2))`
-//!
-//! This code would deadlock. This is because we lock the Mutex then provide it as an argument, and because it the locked value isn't dropped it would deadlock.
+//! This snippet would deadlock: `s.with_Lock(|test| s.with_lock(|test2| test2))`
 
 use parking_lot::{const_mutex, Mutex};
 use std::mem;
@@ -24,11 +22,9 @@ pub struct WithLock<T> {
 }
 
 impl<T> WithLock<T> {
-	/// This function gives you access to what `Mutex.lock()` would return.
+	/// Returns what `Mutex.lock()` would.
 	///
-	/// It will lock the Mutex, provide the locked value as an argument to the function, then drop the locked value.
-	/// # Caveats
-	/// If you clone the value inside the closure, everything touching that variable will need to be inside the closure.
+	/// If you clone the value inside the function provided, everything touching the value will have to be inside the function.
 	pub fn with_lock<F, U>(&self, function: F) -> U
 	where
 		F: FnOnce(&mut T) -> U,
@@ -37,7 +33,7 @@ impl<T> WithLock<T> {
 		function(&mut *lock)
 	}
 
-	/// Construct the WithLock struct with a Mutex.
+	/// Create a new `WithLock` instance.
 	/// ## Examples
 	/// ```rust
 	/// use with_lock::WithLock;
@@ -55,7 +51,7 @@ pub struct MutexCell<T> {
 }
 
 impl<T> MutexCell<T> {
-	/// This function allows you to consturct a MutexCell with a value.
+	/// Create a new MutexCell with a value.
 	/// ## Example
 	/// ```rust
 	/// use with_lock::MutexCell;
@@ -68,7 +64,7 @@ impl<T> MutexCell<T> {
 		}
 	}
 
-	/// This function gets the value inside the MutexCell.
+	/// Returns a copy of the contained value.
 	pub fn get(&self) -> T
 	where
 		T: Copy,
@@ -76,7 +72,7 @@ impl<T> MutexCell<T> {
 		self.data.with_lock(|s| *s)
 	}
 
-	/// This function gets the value inside the MutexCell, but returns it as mutable.
+	/// Returns a mutable reference to the underlying data.
 	pub fn get_mut(&mut self) -> &mut T
 	where
 		T: Copy,
@@ -84,17 +80,17 @@ impl<T> MutexCell<T> {
 		self.data.data.get_mut()
 	}
 
-	/// This function updates the value inside the Mutex.
+	/// Sets the contained value.
 	pub fn set(&self, data: T) {
 		self.data.with_lock(|s| *s = data);
 	}
 
-	/// This function replaces the value inside the MutexCell with a new value.
-	pub fn replace(&self, new: T) -> T {
-		self.data.with_lock(|old| mem::replace(old, new))
+	/// Replaces the contained value with `val`, and returns the old contained value.
+	pub fn replace(&self, val: T) -> T {
+		self.data.with_lock(|old| mem::replace(old, val))
 	}
 
-	/// This function swaps the value inside the MutexCell this is being called on (self) and on the one being provided as an argument.
+	/// Swaps the values of two `MutexCell`s.
 	pub fn swap(&self, new: &MutexCell<T>) {
 		if ptr::eq(self, new) {
 			return;
@@ -103,7 +99,7 @@ impl<T> MutexCell<T> {
 			.with_lock(|a| new.data.with_lock(|b| mem::swap(a, b)))
 	}
 
-	/// This function replaces the value inside the MutexCell with [`Default::default`].
+	/// Takes the value of the cell, leaving `Default::default()` in its place.
 	pub fn take(&self) -> T
 	where
 		T: Default,
@@ -111,7 +107,7 @@ impl<T> MutexCell<T> {
 		self.replace(T::default())
 	}
 
-	/// This function takes the raw mutex and calls [`into_inner`](`std::sync::Mutex::into_inner`).
+	/// Unwraps the value.
 	pub fn into_inner(self) -> T {
 		self.data.data.into_inner()
 	}
